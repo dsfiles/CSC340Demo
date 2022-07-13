@@ -13,7 +13,7 @@ public class Program
         Console.WriteLine("Index of 28: " + BinarySearch(arr, 28));
     }
 
-    static int BinarySearch(int[] arr, int num)
+    static int BinarySearch(int[] arr, int num) //
     {
         int left = 0;
         int right = arr.Length - 1;
