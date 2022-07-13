@@ -1,48 +1,31 @@
-﻿using System;
-public class Program
+﻿// Bubble sort example
+using System;
+class Program
 {
-    public static void Main()
+    static void Main(string[] args)
     {
-        int[] arr = { 1, 2, 5, 8, 11, 13, 13, 13, 18, 20 }; // a sorted array
-        Console.WriteLine("Sorted array: { 1, 2, 5, 8, 11, 13, 13, 13, 18, 20 }");
-        Console.WriteLine("Index of 5: " + SequentialSearch(arr, 5));
-        Console.WriteLine("Index of 13: " + SequentialSearch(arr, 13));
-        Console.WriteLine("Index of 28: " + SequentialSearch(arr, 28));
-        Console.WriteLine("Index of 5: " + BinarySearch(arr, 5));
-        Console.WriteLine("Index of 13: " + BinarySearch(arr, 13));
-        Console.WriteLine("Index of 28: " + BinarySearch(arr, 28));
+        int[] a = { 3, 2, 5, 1, 0 };
+        Console.WriteLine("The original array: 3 2 5 1 0");
+        BubbleSort(a);
+        Console.Write("The sorted array:   ");
+        foreach (int i in a)
+            Console.Write(i + " ");
     }
 
-    static int BinarySearch(int[] arr, int num) //
+    static void BubbleSort(int[] a)
     {
-        int left = 0;
-        int right = arr.Length - 1;
-        int middle;
-        while (left <= right)
+        int tmp;
+        for (int i = 0; i < a.Length - 1; i++)
         {
-            middle = (left + right) / 2;
-            if (num == arr[middle])
+            for (int j = 0; j < a.Length - 1 - i; j++)
             {
-                return middle;
-            }
-            else if (num < arr[middle])
-            {
-                right = middle - 1;
-            }
-            else
-            {
-                left = middle + 1;
+                if (a[j] > a[j + 1])
+                {
+                    tmp = a[j + 1];
+                    a[j + 1] = a[j];
+                    a[j] = tmp;
+                }
             }
         }
-        return -1;
-    }
-
-    static int SequentialSearch(int[] arr, int key)
-    {
-        int ret = -1;
-        for (int index = 0; index < arr.Length && ret == -1; index++)
-            if (arr[index] == key)
-                ret = index;
-        return ret;
-    }
+    } //end of BubbleSort
 }
