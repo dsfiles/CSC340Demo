@@ -1,123 +1,212 @@
-﻿using System;
-using System.Diagnostics;
-class Program
+﻿// bug in sorting
+/*
+ * An array-based list implementation by Alex M. 
+ * Version 1.0 without generic programming feature
+ */
+
+using System;
+
+namespace MyArrayList
 {
-    static void Main(string[] args)
+    internal class Program
     {
-        Random rand = new Random();
-        Stopwatch stopwatch = new Stopwatch(); // Create a stopwatch object to track the time
-        int size = 10_000; // Try different array size of 10, 100, 1k, 10k, 100k, or even higher
-        int[] arr1 = new int[size];
-        int[] arr2 = new int[size];
-        int[] arr3 = new int[size];
-        int[] arr4 = new int[size];
-        int[] arr5 = new int[size];
-        int[] arr6 = new int[size];
-
-        // Create arrays of random numbers
-        for (int i = 0; i < size; i++)
-            arr1[i] = arr2[i] = arr3[i] = arr4[i] = arr5[i] = arr6[i] = rand.Next();
-
-        // Create sorted arrays in ascending order
-        //for (int i = 0; i < size; i++)
-        //    arr1[i] = arr2[i] = arr3[i] = arr4[i] = arr5[i] = arr6[i] = i;
-
-        // Create sorted arrays in descending order
-        //for (int i = 0; i < size; i++)
-        //    arr1[i] = arr2[i] = arr3[i] = arr4[i] = arr5[i] = arr6[i] = size-1-i;
-
-        Console.WriteLine($"Time (in milliseconds) to sort {size} numbers ...");
-        stopwatch.Start();
-        BubbleSort(arr1);
-        stopwatch.Stop();
-        Console.WriteLine($"Regular bubble sort: {stopwatch.Elapsed.TotalMilliseconds}");
-
-        stopwatch.Restart();
-        BubbleSortOptimized(arr2);
-        stopwatch.Stop();
-        Console.WriteLine($"Optimized bubble sort: {stopwatch.Elapsed.TotalMilliseconds}");
-
-        stopwatch.Restart();
-        QSort(arr2);
-        stopwatch.Stop();
-        Console.WriteLine($"Quick sort: {stopwatch.Elapsed.TotalMilliseconds}");
-
-        // More testing of other sorting algorithms to be added here ...
+        static void Main(string[] args)
+        {
+            //create an instance
+            MyArrayList list = new MyArrayList();
+            //check count and capacity
+            Console.WriteLine($"A newly created list: count={list.Count}, capacity={list.Capacity}");
+            //add to this list
+            list.Add(3);
+            Console.WriteLine($"Operation: Add(3), Count: {list.Count}, Capacity: {list.Capacity}");
+            list.Add(1);
+            Console.WriteLine($"Operation: Add(1), Count: {list.Count}, Capacity: {list.Capacity}");
+            list.Add(2);
+            Console.WriteLine($"Operation: Add(2), Count: {list.Count}, Capacity: {list.Capacity}");
+            list.Add(5);
+            Console.WriteLine($"Operation: Add(5), Count: {list.Count}, Capacity: {list.Capacity}");
+            list.Add(0);
+            Console.WriteLine($"Operation: Add(0), Count: {list.Count}, Capacity: {list.Capacity}");
+            //for (int i = 0; i < 2; i++)
+            //{
+            //    list.Add(3);
+            //}
+            Console.WriteLine("List before sorting:");
+            list.DisplayList();
+            list.Sort();
+            Console.WriteLine("List after sorting:");
+            list.DisplayList();
+            //check indexer
+            Console.WriteLine("element at index 1: " + list[1]);
+            list.Clear();
+            Console.WriteLine($"Operation: Clear(), Count: {list.Count}, Capacity: {list.Capacity}");
+        }
     }
 
-    static void BubbleSort(int[] arr)
+    class MyArrayList
     {
-        int tmp;
-        for (int i = 0; i < arr.Length - 1; i++)
+        int[] values; //data stored in an array
+        public int Count { get; private set; }
+        public int Capacity
         {
-            for (int j = 0; j < arr.Length - 1-i; j++)
+            get { return values.Length; }
+            set { Capacity = value; }
+        }
+
+        public MyArrayList(int Capacity=4) //constructor
+        {   //allocate an array of size = Capacity or 4 by default 
+            values = new int[Capacity];
+            Count = 0; //initially count is set to 0;
+        }
+
+        public void Add(int newValue)
+        {
+            //check if array is full
+            if (Count == Capacity)
             {
-                if (arr[j] > arr[j + 1])
-                { // swap two adjacent elements if they are not in the intended order
-                    tmp = arr[j + 1];
-                    arr[j + 1] = arr[j];
-                    arr[j] = tmp;
+                Resize();
+            }
+            //put newValue into the array at position count
+            values[Count] = newValue;
+            Count++;
+        }
+
+        public void Resize()
+        {
+            //create a new array of double capacity
+            int[] tmp = new int[2 * Capacity];
+            //copy over the old value
+            for (int pos = 0; pos < Capacity; pos++)
+            {
+                tmp[pos] = values[pos];
+            }
+            //reference values array to the new tmp array
+            values = tmp;
+        }
+
+        public void AddLast(int newValue)
+        {
+            Add(newValue);
+            //Insert(newValue, Count)
+        }
+
+        public void AddFirst(int newValue)
+        {
+            Insert(newValue, 0);
+        }
+
+        public void Insert(int newValue, int index)
+        {
+            if (index < 0 || index > Count)
+                throw new ArgumentOutOfRangeException($"index should be between {0} and {Count}");
+            //check if the array is full, double its capacity if needed
+            if (Count == Capacity)
+                Resize();
+            //shift everything from position i thru Count-1 to the right by one position
+            for (int i = Count; i > index; i--)
+            {
+                values[i] = values[i - 1];
+            }
+            //insert the new value
+            values[index] = newValue;
+            Count++;
+        }
+
+        public void DeleteLast()
+        {
+            if (Count == 0) //you CAN't delete last from an empty list
+                throw new IndexOutOfRangeException("You CAN't delete last from an empty list");
+            Count--;
+        }
+        public void DeleteFirst()
+        {
+            Delete(0);
+        }
+        public void Delete(int index)
+        {
+            //validate index
+            if (index < 0 || index >= Count)
+                throw new ArgumentOutOfRangeException($"index should be between {0} and {Count - 1}");
+            //shift everything (that is past index i) to the left one position
+            for (int i = index; i < Count - 1; i++)
+                values[i] = values[i + 1];
+            Count--;
+        }
+        public void Clear()
+        {
+            Count = 0; // too simple?
+        }
+
+        public bool IsEmpty()
+        {
+            return Count == 0;
+        }
+
+        public void DisplayList()
+        {
+            if (IsEmpty())
+                Console.WriteLine("Empty list!");
+            else
+            {
+                for (int i = 0; i < Count; i++)
+                {
+                    Console.Write((values[i]) + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        public void Sort()
+        {
+            Console.WriteLine("count=" + Count);
+            foreach (var item in values)
+            {
+                Console.WriteLine(item);
+            }
+            QuickSort(values, 0, Count - 1);
+        }
+        static void QuickSort(int[] arr, int left, int right)
+        {
+            if (left < right)
+            {
+                int p = Partition(arr, left, right);
+                QuickSort(arr, left, p - 1);
+                QuickSort(arr, p + 1, right);
+            }
+        }
+        static int Partition(int[] arr, int left, int right)
+        {
+            int pivot = arr[right], tmp;
+            int l = left;
+            int r = right - 1;
+            while (l < r)
+            {
+                while (arr[l] < pivot && l < r)
+                {
+                    l++;
+                }
+                while (arr[r] > pivot && l < r)
+                {
+                    r--;
+                }
+                if (l < r)
+                {
+                    tmp = arr[l]; arr[l] = arr[r]; arr[r] = tmp;
                 }
             }
+            tmp = arr[l]; arr[l] = arr[right]; arr[right] = tmp;
+            return l;
         }
-    }
-    static void BubbleSortOptimized(int[] arr)
-    {
-        int tmp;
-        bool flag = false;
-        for (int i = 0; i < arr.Length - 1; i++)
-        {
-            for (int j = 0; j < arr.Length - 1 - i; j++)
-            {
-                if (arr[j] > arr[j + 1])
-                { // swap two adjacent elements if they are not in the intended order
-                    tmp = arr[j + 1];
-                    arr[j + 1] = arr[j];
-                    arr[j] = tmp;
-                    flag = true;
-                }
-            }
-            if (!flag)
-            {
-                return; // the array is already sorted
-            }
-        }
-    }
 
-    static void QSort(int[] arr)
-    {
-        QuickSort(arr, 0, arr.Length-1);
-    }
+        public void Reverse()
+        {
+            throw new NotImplementedException();
+        }
 
-    static void QuickSort(int[] arr, int left, int right)
-    {
-        // return right way if there is only one element, i.e., left == right,
-        // or there is none, i.e., left > right, 
-        if (left < right)
+        public int this[int i] //indexer
         {
-            int p = Partition(arr, left, right); // p is the index of pivot
-            QuickSort(arr, left, p - 1);
-            QuickSort(arr, p + 1, right);
+            get { return values[i]; }
+            set { values[i] = value; }
         }
     }
-    static int Partition(int[] arr, int left, int right)
-    {
-        int pivot = arr[right], tmp; //in this example we always pick the last element as pivot
-        int l = left;
-        int r = right - 1; //subtract one here because last element is pivot
-        while (l < r)
-        {
-            while (arr[l] < pivot && l < r) { l++; }
-            while (arr[r] > pivot && l < r) { r--; }
-            if (l < r) // if the two elements pointed by l and r are out of order, swap them
-            {
-                tmp = arr[l]; arr[l] = arr[r]; arr[r] = tmp;
-            }
-        }
-        tmp = arr[l]; arr[l] = arr[right]; arr[right] = tmp;
-        return l; //l is the index of partition to be returned
-    }
-    // Add your own implementation of Selection-, Insertion-, Merge- and Quick-Sort
-    // or use the existing ones below:
-    // https://github.com/dsfiles/CSC340/tree/main/week02
 }
